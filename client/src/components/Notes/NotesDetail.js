@@ -6,12 +6,15 @@ import TextField from "@material-ui/core/TextField";
 import { useForm, Controller } from "react-hook-form";
 
 import useApi from "../../hooks/useApi";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useParams, useHistory } from "react-router-dom";
 
 /* Styles */
 import { useStyles } from "./styles";
 import { Loader } from "../Loader";
+
+import { setNotification } from "../../actions/notification";
+import { useEffect, useState } from "react";
 
 const NotesDetail = () => {
   const classes = useStyles();
@@ -24,6 +27,8 @@ const NotesDetail = () => {
   const urlParams = useParams();
   const history = useHistory();
   const detailReq = useApi(`/api/notes/${urlParams.id}`, user.token, {}, true);
+  const dispatch = useDispatch();
+  const [finish, setFinish] = useState(false);
 
   const addNote = (data) => {
     detailReq.updateParams({
@@ -38,7 +43,25 @@ const NotesDetail = () => {
 
   const onSubmit = (data) => {
     addNote(data);
+    setFinish(false);
   };
+
+  useEffect(() => {
+    if (
+      !detailReq.loading &&
+      detailReq.data &&
+      detailReq.error === "" &&
+      !finish
+    ) {
+      dispatch(
+        setNotification({
+          title: "Información",
+          content: "El registro se ha actualizado correctamente.",
+        })
+      );
+      setFinish(true);
+    }
+  }, [detailReq, finish]);
 
   return (
     <div className={classes.root}>

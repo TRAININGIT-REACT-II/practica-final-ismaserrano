@@ -11,25 +11,23 @@ import MenuItem from "@material-ui/core/MenuItem";
 import useStyles from "./styles";
 
 import { Modal } from "../Modal";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { getUser } from "../../selectors/user";
 import { useHistory } from "react-router-dom";
 import { getNotification } from "../../selectors/notification";
+import { setNotification } from "../../actions/notification";
 
 const AppContainer = ({ children }) => {
   const classes = useStyles();
-  const [modalOpened, setModalOpened] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const { user } = useSelector((state) => getUser(state));
   const { notification } = useSelector((state) => getNotification(state));
   const history = useHistory();
-
-  const openModal = () => {
-    setModalOpened(true);
-  };
+  const dispatch = useDispatch();
+  console.log(BASE_URL);
 
   const closeModal = () => {
-    setModalOpened(false);
+    dispatch(setNotification(null));
   };
 
   const handleClick = (event) => {

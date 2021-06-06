@@ -6,11 +6,14 @@ import TextField from "@material-ui/core/TextField";
 import { useForm, Controller } from "react-hook-form";
 
 import useApi from "../../hooks/useApi";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 
 /* Styles */
 import { useStyles } from "./styles";
+import { useEffect, useState } from "react";
+
+import { setNotification } from "../../actions/notification";
 
 const NotesAdd = () => {
   const classes = useStyles();
@@ -18,10 +21,13 @@ const NotesAdd = () => {
     handleSubmit,
     control,
     formState: { errors },
+    reset,
   } = useForm();
   const { user } = useSelector((state) => state.user);
   const addReq = useApi("/api/notes", user.token, {}, false);
   const history = useHistory();
+  const dispatch = useDispatch();
+  const [finish, setFinish] = useState(false);
 
   const addNote = (data) => {
     const dateObj = new Date(Date.now());
@@ -36,9 +42,27 @@ const NotesAdd = () => {
     addReq.perform();
   };
 
-  const onSubmit = (data) => {
+  const onSubmit = (data, e) => {
     addNote(data);
+    setFinish(false);
   };
+
+  useEffect(() => {
+    /* Limpiamos formulario */
+    if (!addReq.loading && addReq.data && addReq.error === "" && !finish) {
+      dispatch(
+        setNotification({
+          title: "Información",
+          content: "El registro se ha dado de alta correctamente.",
+        })
+      );
+      setFinish(true);
+      reset({
+        title: "",
+        description: "",
+      });
+    }
+  }, [addReq, finish]);
 
   return (
     <div className={classes.root}>

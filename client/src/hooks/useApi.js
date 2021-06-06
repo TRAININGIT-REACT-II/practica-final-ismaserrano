@@ -61,7 +61,10 @@ const useApi = (url, token = "", initialParams = {}, performOnMount = true) => {
       setError("");
 
       // Realizamos la llamada al servidor
-      fetch(url, config)
+      fetch(
+        BASE_URL + typeof config.url !== "undefined" ? config.url : url,
+        config
+      )
         .then((res) => res.json())
         .then((json) => {
           if (json.error != null) {

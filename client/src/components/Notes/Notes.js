@@ -14,6 +14,7 @@ import { getComparator, stableSort } from "./utils";
 
 import useApi from "../../hooks/useApi";
 import useConstructor from "../../hooks/useConstructor";
+import usePrevious from "../../hooks/usePrevious";
 import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 
@@ -37,11 +38,14 @@ const Notes = () => {
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("title");
   const [selected, setSelected] = useState([]);
+  const selectedPrevious = usePrevious(selected);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const { user } = useSelector((state) => state.user);
   const notesReq = useApi("/api/notes", user.token, {}, false);
+  const deleteNotesReq = useApi("/api/notes", user.token, {}, false);
   const history = useHistory();
+  const [deleteAction, setDeleteAction] = useState(false);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -51,7 +55,7 @@ const Notes = () => {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = notesReq.data.map((n) => n.title);
+      const newSelecteds = notesReq.data.map((n) => n.id);
       setSelected(newSelecteds);
       return;
     }
@@ -97,12 +101,47 @@ const Notes = () => {
     );
 
   const removeSelected = () => {
-    console.log(selected);
+    setDeleteAction(true);
   };
+
+  useEffect(() => {
+    if (selected.length > 0 && deleteAction) {
+      if (!deleteNotesReq.loading && deleteNotesReq.error === "") {
+        let selectedTemp = [];
+        selectedTemp.push(...selected);
+        selectedTemp.shift();
+        setSelected(selectedTemp);
+      }
+    }
+  }, [deleteNotesReq, selected, deleteAction]);
+
+  useEffect(() => {
+    if (deleteAction && selected.length > 0 && !deleteNotesReq.loading) {
+      deleteNotesReq.updateParams({
+        url: `/api/notes/${selected[0]}`,
+        token: user.token,
+        method: "DELETE",
+      });
+      deleteNotesReq.perform();
+    }
+    /* Si hemos acabado de borrar, actualizamos listado de notas */
+    if (
+      selected.length === 0 &&
+      typeof selectedPrevious !== "undefined" &&
+      selectedPrevious.length === 1 &&
+      deleteAction
+    ) {
+      setDeleteAction(false);
+      notesReq.updateParams({
+        method: "GET",
+      });
+      notesReq.perform();
+    }
+  }, [selected, deleteAction]);
 
   useConstructor(() => {
     notesReq.perform();
-  }, []);
+  });
 
   return (
     <div className={classes.root}>
@@ -142,7 +181,7 @@ const Notes = () => {
                           role="checkbox"
                           aria-checked={isItemSelected}
                           tabIndex={-1}
-                          key={row.title}
+                          key={row.id}
                           selected={isItemSelected}
                         >
                           <TableCell padding="checkbox">

@@ -11,47 +11,51 @@ import { PrivateRoute } from "./components/PrivateRoute";
 
 import { Provider } from "react-redux";
 
+import { ErrorBoundary } from "./components/ErrorBoundary";
+
 /* Store */
 import store from "./store";
 
 const App = () => {
   return (
-    <Provider store={store}>
-      <Router>
-        <Switch>
-          {/* Listado notas */}
-          <PrivateRoute exact path="/">
-            <AppContainer>
-              <Notes />
-            </AppContainer>
-          </PrivateRoute>
-          {/* Añadir nota */}
-          <PrivateRoute exact path="/add">
-            <AppContainer>
-              <NotesAdd />
-            </AppContainer>
-          </PrivateRoute>
-          {/* Registro */}
-          <Route exact path="/signup">
-            <SignUp />
-          </Route>
-          {/* Login */}
-          <Route exact path="/signin">
-            <SignIn />
-          </Route>
-          {/* Detalle nota */}
-          <PrivateRoute exact path="/:id?">
-            <AppContainer>
-              <NotesDetail />
-            </AppContainer>
-          </PrivateRoute>
-          {/* 404 */}
-          <Route path="*">
-            <NotFound />
-          </Route>
-        </Switch>
-      </Router>
-    </Provider>
+    <ErrorBoundary>
+      <Provider store={store}>
+        <Router>
+          <Switch>
+            {/* Listado notas */}
+            <PrivateRoute exact path="/">
+              <AppContainer>
+                <Notes />
+              </AppContainer>
+            </PrivateRoute>
+            {/* Añadir nota */}
+            <PrivateRoute exact path="/add">
+              <AppContainer>
+                <NotesAdd />
+              </AppContainer>
+            </PrivateRoute>
+            {/* Registro */}
+            <Route exact path="/signup">
+              <SignUp />
+            </Route>
+            {/* Login */}
+            <Route exact path="/signin">
+              <SignIn />
+            </Route>
+            {/* Detalle nota */}
+            <PrivateRoute exact path="/:id?">
+              <AppContainer>
+                <NotesDetail />
+              </AppContainer>
+            </PrivateRoute>
+            {/* 404 */}
+            <Route path="*">
+              <NotFound />
+            </Route>
+          </Switch>
+        </Router>
+      </Provider>
+    </ErrorBoundary>
   );
 };
 

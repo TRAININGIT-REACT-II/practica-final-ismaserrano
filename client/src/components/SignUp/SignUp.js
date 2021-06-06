@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -145,6 +145,9 @@ const SignUp = () => {
           >
             Registrarme
           </Button>
+          <Typography component="p" variant="error">
+            Registro
+          </Typography>
           <Grid container justify="flex-end">
             <Grid item>
               <Link href="/signin" variant="body2">

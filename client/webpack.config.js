@@ -1,4 +1,5 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
+const DefinePlugin = require("webpack").DefinePlugin;
 const { resolve } = require("path");
 
 /**
@@ -44,10 +45,20 @@ module.exports = {
       favicon: "./static/favicon.ico",
       filename: "index.html",
     }),
+    new DefinePlugin({
+      BASE_URL: JSON.stringify(
+        process.env.NODE_ENV === "production"
+          ? "https://api.sitioenproduccion.com"
+          : ""
+      ),
+      VERSION: JSON.stringify("1.0.1.1234"),
+    }),
   ],
   // Por ahora, incluimos siempre los source maps para que las herramientas
   // de desarrollo del navegador muestren el codigo fuente
-  devtool: "eval-cheap-module-source-map",
+  // devtool: "eval-cheap-module-source-map",
+  // Configuramos para que source-map tenga calidad en producción
+  devtool: "source-map",
   // Configuracion del servidor de desarrollo
   devServer: {
     // Forzamos a que cualquier ruta que sea la de un fichero conocido por

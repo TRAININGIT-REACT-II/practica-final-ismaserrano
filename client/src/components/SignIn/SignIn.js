@@ -15,6 +15,7 @@ import { useDispatch } from "react-redux";
 
 /* Acciones */
 import { setUser } from "../../actions/user";
+import { useEffect, useState } from "react";
 
 const SignIn = () => {
   const classes = useStyles();
@@ -26,6 +27,7 @@ const SignIn = () => {
   } = useForm();
   const history = useHistory();
   const dispatch = useDispatch();
+  const [apiError, setApiError] = useState("");
 
   let token;
   if (loginReq.data) {
@@ -51,6 +53,18 @@ const SignIn = () => {
   const onSubmit = (data) => {
     login(data);
   };
+
+  useEffect(() => {
+    console.log(loginReq);
+    if (
+      !loginReq.loading &&
+      loginReq.error !== null &&
+      loginReq.error !== "" &&
+      loginReq.data === null
+    ) {
+      setApiError(loginReq.error);
+    }
+  }, [loginReq]);
 
   return (
     <Container component="main" maxWidth="xs">
@@ -143,6 +157,16 @@ const SignIn = () => {
           >
             Acceder
           </Button>
+          {apiError.length > 0 ? (
+            <Typography
+              component="p"
+              variant="body2"
+              color="error"
+              align="center"
+            >
+              {apiError}
+            </Typography>
+          ) : null}
           <Grid container>
             <Grid item>
               <Link href="/signup" variant="body2">
