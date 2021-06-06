@@ -1,0 +1,157 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Componente SignIn Ha cambiado el renderizado de componente? 1`] = `
+<DocumentFragment>
+  <main
+    class="MuiContainer-root MuiContainer-maxWidthXs"
+  >
+    <div
+      class="makeStyles-paper-1"
+    >
+      <div
+        class="MuiAvatar-root MuiAvatar-circle makeStyles-avatar-2 MuiAvatar-colorDefault"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"
+          />
+        </svg>
+      </div>
+      <h1
+        class="MuiTypography-root MuiTypography-h5"
+      >
+        Acceder
+      </h1>
+      <form
+        class="makeStyles-form-3"
+        novalidate=""
+      >
+        <div
+          class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-2"
+        >
+          <div
+            class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12"
+          >
+            <div
+              class="MuiFormControl-root MuiTextField-root MuiFormControl-fullWidth"
+            >
+              <label
+                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined"
+                data-shrink="false"
+                for="email"
+                id="email-label"
+              >
+                Email
+              </label>
+              <div
+                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-fullWidth MuiInputBase-formControl"
+              >
+                <input
+                  aria-invalid="false"
+                  class="MuiInputBase-input MuiOutlinedInput-input"
+                  id="email"
+                  name="email"
+                  type="text"
+                  value=""
+                />
+                <fieldset
+                  aria-hidden="true"
+                  class="PrivateNotchedOutline-root-5 MuiOutlinedInput-notchedOutline"
+                >
+                  <legend
+                    class="PrivateNotchedOutline-legendLabelled-7"
+                  >
+                    <span>
+                      Email
+                    </span>
+                  </legend>
+                </fieldset>
+              </div>
+            </div>
+          </div>
+          <div
+            class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12"
+          >
+            <div
+              class="MuiFormControl-root MuiTextField-root MuiFormControl-fullWidth"
+            >
+              <label
+                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined Mui-required Mui-required"
+                data-shrink="false"
+                for="password"
+                id="password-label"
+              >
+                Contraseña
+                <span
+                  aria-hidden="true"
+                  class="MuiFormLabel-asterisk MuiInputLabel-asterisk"
+                >
+                   *
+                </span>
+              </label>
+              <div
+                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-fullWidth MuiInputBase-formControl"
+              >
+                <input
+                  aria-invalid="false"
+                  class="MuiInputBase-input MuiOutlinedInput-input"
+                  id="password"
+                  name="password"
+                  required=""
+                  type="password"
+                  value=""
+                />
+                <fieldset
+                  aria-hidden="true"
+                  class="PrivateNotchedOutline-root-5 MuiOutlinedInput-notchedOutline"
+                >
+                  <legend
+                    class="PrivateNotchedOutline-legendLabelled-7"
+                  >
+                    <span>
+                      Contraseña *
+                    </span>
+                  </legend>
+                </fieldset>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained makeStyles-submit-4 MuiButton-containedPrimary MuiButton-fullWidth"
+          tabindex="0"
+          type="submit"
+        >
+          <span
+            class="MuiButton-label"
+          >
+            Acceder
+          </span>
+          <span
+            class="MuiTouchRipple-root"
+          />
+        </button>
+        <div
+          class="MuiGrid-root MuiGrid-container"
+        >
+          <div
+            class="MuiGrid-root MuiGrid-item"
+          >
+            <a
+              class="MuiTypography-root MuiLink-root MuiLink-underlineHover MuiTypography-body2 MuiTypography-colorPrimary"
+              href="/signup"
+            >
+              Regístrate
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </main>
+</DocumentFragment>
+`;

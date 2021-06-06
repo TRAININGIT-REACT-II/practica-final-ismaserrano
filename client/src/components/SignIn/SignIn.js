@@ -55,7 +55,6 @@ const SignIn = () => {
   };
 
   useEffect(() => {
-    console.log(loginReq);
     if (
       !loginReq.loading &&
       loginReq.error !== null &&
