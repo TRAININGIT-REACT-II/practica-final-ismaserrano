@@ -1,15 +1,49 @@
+import { useState } from "react";
 import AppBar from "@material-ui/core/AppBar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Grid from "@material-ui/core/Grid";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import Link from "@material-ui/core/Link";
 import Container from "@material-ui/core/Container";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
 import useStyles from "./styles";
+
+import { Modal } from "../Modal";
+import { useSelector } from "react-redux";
+import { getUser } from "../../selectors/user";
+import { useHistory } from "react-router-dom";
+import { getNotification } from "../../selectors/notification";
 
 const AppContainer = ({ children }) => {
   const classes = useStyles();
+  const [modalOpened, setModalOpened] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const { user } = useSelector((state) => getUser(state));
+  const { notification } = useSelector((state) => getNotification(state));
+  const history = useHistory();
+
+  const openModal = () => {
+    setModalOpened(true);
+  };
+
+  const closeModal = () => {
+    setModalOpened(false);
+  };
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const logout = () => {
+    sessionStorage.removeItem("userObj");
+    history.push("/signin");
+  };
 
   return (
     <>
@@ -29,40 +63,29 @@ const AppContainer = ({ children }) => {
           >
             Notas ACME, Ltd.
           </Typography>
-          <nav>
-            <Link
-              variant="button"
-              color="textPrimary"
-              href="#"
-              className={classes.link}
-            >
-              Features
-            </Link>
-            <Link
-              variant="button"
-              color="textPrimary"
-              href="#"
-              className={classes.link}
-            >
-              Enterprise
-            </Link>
-            <Link
-              variant="button"
-              color="textPrimary"
-              href="#"
-              className={classes.link}
-            >
-              Support
-            </Link>
-          </nav>
-          <Button
-            href="#"
-            color="primary"
-            variant="outlined"
-            className={classes.link}
-          >
-            Login
-          </Button>
+          {typeof user !== "undefined" && user !== null ? (
+            <>
+              <Button
+                color="primary"
+                variant="outlined"
+                className={classes.link}
+                aria-controls="simple-menu"
+                aria-haspopup="true"
+                onClick={handleClick}
+              >
+                {user.username}
+              </Button>
+              <Menu
+                id="simple-menu"
+                anchorEl={anchorEl}
+                keepMounted
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                <MenuItem onClick={logout}>Salir</MenuItem>
+              </Menu>
+            </>
+          ) : null}
         </Toolbar>
       </AppBar>
       <Container maxWidth="md" component="main">
@@ -71,6 +94,13 @@ const AppContainer = ({ children }) => {
           {children}
         </Grid>
       </Container>
+      <Modal
+        open={notification !== null ? true : false}
+        title={notification !== null ? notification.title : ""}
+        handleClose={closeModal}
+      >
+        {notification !== null ? notification.content : ""}
+      </Modal>
     </>
   );
 };

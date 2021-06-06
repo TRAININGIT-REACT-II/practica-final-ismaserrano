@@ -91,7 +91,7 @@ fastify.get("/api", async () => {
  * el cuerpo del mensaje
  */
 fastify.post("/api/register", (request, reply) => {
-  const { username, password } = request.body;
+  const { username, password } = JSON.parse(request.body);
 
   const userExists = db.get("users").find({ username }).value();
 
@@ -134,7 +134,7 @@ fastify.post("/api/register", (request, reply) => {
  * Inicia sesión devolviendo el token para las peticiones
  */
 fastify.post("/api/login", (request, reply) => {
-  const { username, password } = request.body;
+  const { username, password } = JSON.parse(request.body);
 
   const user = db.get("users").find({ username }).value();
 
@@ -230,12 +230,13 @@ fastify.route({
   handler: (request, reply) => {
     // Obtenemos el usuario
     const { id: userId } = request.user;
-    const { title, content } = request.body;
+    const { title, content, date } = JSON.parse(request.body);
 
     const newPost = {
       author: userId,
       title,
       content,
+      date,
       id: nanoid(NOTE_ID_LENGTH),
     };
 
@@ -262,7 +263,7 @@ fastify.route({
   handler: (request, reply) => {
     // Obtenemos el usuario
     const { id: userId } = request.user;
-    const { title, content } = request.body;
+    const { title, content } = JSON.parse(request.body);
     const { id } = request.params;
     const note = db.get("notes").find({ author: userId, id }).value();
 

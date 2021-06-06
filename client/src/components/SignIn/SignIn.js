@@ -1,4 +1,3 @@
-import React from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -9,9 +8,49 @@ import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
 import useStyles from "./styles";
+import useApi from "../../hooks/useApi";
+import { useForm, Controller } from "react-hook-form";
+import { useHistory } from "react-router-dom";
+import { useDispatch } from "react-redux";
+
+/* Acciones */
+import { setUser } from "../../actions/user";
 
 const SignIn = () => {
   const classes = useStyles();
+  const loginReq = useApi("/api/login", "", {}, false);
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm();
+  const history = useHistory();
+  const dispatch = useDispatch();
+
+  let token;
+  if (loginReq.data) {
+    token = loginReq.data.token;
+    if (token.length > 0) {
+      sessionStorage.setItem("userObj", JSON.stringify(loginReq.data));
+      dispatch(setUser(loginReq.data));
+      history.push("/");
+    }
+  }
+
+  const login = (data) => {
+    loginReq.updateParams({
+      method: "POST",
+      body: JSON.stringify({
+        username: data.email,
+        password: data.password,
+      }),
+    });
+    loginReq.perform();
+  };
+
+  const onSubmit = (data) => {
+    login(data);
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -23,29 +62,78 @@ const SignIn = () => {
         <Typography component="h1" variant="h5">
           Acceder
         </Typography>
-        <form className={classes.form} noValidate>
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            id="email"
-            label="Email"
-            name="email"
-            autoComplete="email"
-            autoFocus
-          />
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Contraseña"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-          />
+        <form
+          className={classes.form}
+          noValidate
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Controller
+                name="email"
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    variant="outlined"
+                    fullWidth
+                    id="email"
+                    label="Email"
+                    error={errors.email ? true : false}
+                    helperText={errors.email ? errors.email.message : null}
+                  />
+                )}
+                control={control}
+                rules={{
+                  required: {
+                    value: true,
+                    message: "Correo electrónico obligatorio",
+                  },
+                  pattern: {
+                    value:
+                      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                    message: "Correo electrónico inválido",
+                  },
+                }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Controller
+                name="password"
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    variant="outlined"
+                    required
+                    fullWidth
+                    label="Contraseña"
+                    type="password"
+                    id="password"
+                    error={errors.password ? true : false}
+                    helperText={
+                      errors.password ? errors.password.message : null
+                    }
+                  />
+                )}
+                control={control}
+                rules={{
+                  required: {
+                    value: true,
+                    message: "La contaseña es obligatoria",
+                  },
+                  minLength: {
+                    value: 8,
+                    message:
+                      "La contraseña debe tener una longitud mínima de 8 caracteres",
+                  },
+                  maxLength: {
+                    value: 20,
+                    message:
+                      "La contraseña debe tener una longitud máxima de 20 caracteres",
+                  },
+                }}
+              />
+            </Grid>
+          </Grid>
           <Button
             type="submit"
             fullWidth

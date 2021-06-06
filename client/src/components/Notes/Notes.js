@@ -1,98 +1,215 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
+import TableContainer from "@material-ui/core/TableContainer";
+import TablePagination from "@material-ui/core/TablePagination";
 import TableRow from "@material-ui/core/TableRow";
-import { Typography } from "@material-ui/core";
-import Container from "@material-ui/core/Container";
-import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
-import useStyles from "./styles";
+import Checkbox from "@material-ui/core/Checkbox";
+import NotesToolbar from "./NotesToolbar";
+import NotesTableHead from "./NotesTableHead";
 
-// Generate Order Data
-function createData(id, date, name, shipTo, paymentMethod, amount) {
-  return { id, date, name, shipTo, paymentMethod, amount };
-}
+import { getComparator, stableSort } from "./utils";
 
-const rows = [
-  createData(
-    0,
-    "16 Mar, 2019",
-    "Elvis Presley",
-    "Tupelo, MS",
-    "VISA ⠀•••• 3719",
-    312.44
-  ),
-  createData(
-    1,
-    "16 Mar, 2019",
-    "Paul McCartney",
-    "London, UK",
-    "VISA ⠀•••• 2574",
-    866.99
-  ),
-  createData(
-    2,
-    "16 Mar, 2019",
-    "Tom Scholz",
-    "Boston, MA",
-    "MC ⠀•••• 1253",
-    100.81
-  ),
-  createData(
-    3,
-    "16 Mar, 2019",
-    "Michael Jackson",
-    "Gary, IN",
-    "AMEX ⠀•••• 2000",
-    654.39
-  ),
-  createData(
-    4,
-    "15 Mar, 2019",
-    "Bruce Springsteen",
-    "Long Branch, NJ",
-    "VISA ⠀•••• 5919",
-    212.79
-  ),
+import useApi from "../../hooks/useApi";
+import useConstructor from "../../hooks/useConstructor";
+import { useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
+
+/* Styles */
+import { useStyles } from "./styles";
+import { Button, Typography } from "@material-ui/core";
+import { Loader } from "../Loader";
+
+const headCells = [
+  {
+    id: "title",
+    numeric: false,
+    disablePadding: true,
+    label: "Título",
+  },
+  { id: "date", numeric: true, disablePadding: false, label: "Fecha" },
 ];
 
-export default function Orders() {
+const Notes = () => {
   const classes = useStyles();
+  const [order, setOrder] = useState("asc");
+  const [orderBy, setOrderBy] = useState("title");
+  const [selected, setSelected] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const { user } = useSelector((state) => state.user);
+  const notesReq = useApi("/api/notes", user.token, {}, false);
+  const history = useHistory();
+
+  const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
+
+  const handleSelectAllClick = (event) => {
+    if (event.target.checked) {
+      const newSelecteds = notesReq.data.map((n) => n.title);
+      setSelected(newSelecteds);
+      return;
+    }
+    setSelected([]);
+  };
+
+  const handleClick = (event, id) => {
+    const selectedIndex = selected.indexOf(id);
+    let newSelected = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, id);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1));
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1)
+      );
+    }
+
+    setSelected(newSelected);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const isSelected = (id) => selected.indexOf(id) !== -1;
+
+  const emptyRows =
+    rowsPerPage -
+    Math.min(
+      rowsPerPage,
+      notesReq.data ? notesReq.data.length : 0 - page * rowsPerPage
+    );
+
+  const removeSelected = () => {
+    console.log(selected);
+  };
+
+  useConstructor(() => {
+    notesReq.perform();
+  }, []);
 
   return (
-    <Container maxWidth="lg" className={classes.container}>
-      {/* Recent Orders */}
-      <Grid item xs={12}>
-        <Paper className={classes.paper}>
-          <Typography variant="h5" color="primary">
-            Notas
-          </Typography>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Date</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Ship To</TableCell>
-                <TableCell>Payment Method</TableCell>
-                <TableCell align="right">Sale Amount</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {rows.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{row.date}</TableCell>
-                  <TableCell>{row.name}</TableCell>
-                  <TableCell>{row.shipTo}</TableCell>
-                  <TableCell>{row.paymentMethod}</TableCell>
-                  <TableCell align="right">{row.amount}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Paper>
-      </Grid>
-    </Container>
+    <div className={classes.root}>
+      <Paper className={classes.paper}>
+        {notesReq.data && notesReq.data.length ? (
+          <>
+            <NotesToolbar
+              numSelected={selected.length}
+              deleteCb={() => removeSelected()}
+            />
+            <TableContainer>
+              <Table
+                className={classes.table}
+                aria-labelledby="tableTitle"
+                aria-label="enhanced table"
+              >
+                <NotesTableHead
+                  classes={classes}
+                  numSelected={selected.length}
+                  order={order}
+                  orderBy={orderBy}
+                  onSelectAllClick={handleSelectAllClick}
+                  onRequestSort={handleRequestSort}
+                  rowCount={notesReq.data.length}
+                  headCells={headCells}
+                />
+                <TableBody>
+                  {stableSort(notesReq.data, getComparator(order, orderBy))
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((row, index) => {
+                      const isItemSelected = isSelected(row.id);
+                      const labelId = `enhanced-table-checkbox-${index}`;
+
+                      return (
+                        <TableRow
+                          hover
+                          role="checkbox"
+                          aria-checked={isItemSelected}
+                          tabIndex={-1}
+                          key={row.title}
+                          selected={isItemSelected}
+                        >
+                          <TableCell padding="checkbox">
+                            <Checkbox
+                              checked={isItemSelected}
+                              inputProps={{ "aria-labelledby": labelId }}
+                              onClick={(event) => handleClick(event, row.id)}
+                            />
+                          </TableCell>
+                          <TableCell
+                            component="th"
+                            id={labelId}
+                            scope="row"
+                            padding="none"
+                            onClick={() => history.push(`/${row.id}`)}
+                            style={{ cursor: "pointer" }}
+                          >
+                            {row.title}
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            onClick={() => history.push(`/${row.id}`)}
+                            style={{ cursor: "pointer" }}
+                          >
+                            {row.date}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  {emptyRows > 0 && (
+                    <TableRow style={{ height: 53 * emptyRows }}>
+                      <TableCell colSpan={6} />
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={notesReq.data.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangeRowsPerPage}
+            />
+          </>
+        ) : (
+          <>
+            {notesReq.loading ? (
+              <Loader style={{ display: "flex", padding: "40px 20px" }} />
+            ) : (
+              <Typography
+                variant="body2"
+                gutterBottom
+                display="block"
+                style={{ padding: "40px 20px" }}
+              >
+                No se han encontrado registros
+              </Typography>
+            )}
+          </>
+        )}
+      </Paper>
+      <Button onClick={() => history.push("/add")}>Añadir nota</Button>
+    </div>
   );
-}
+};
+
+export default Notes;
